@@ -91,6 +91,11 @@ def main(REDUCE_TO):
     config_dict["hidden_size"] = custom_configurations[REDUCE_TO]["hidden_size"]
     config_dict["head_dim"] = custom_configurations[REDUCE_TO]["head_dim"]
 
+    # Newer transformers validates that layer_types length == num_hidden_layers.
+    n = custom_configurations[REDUCE_TO]["num_hidden_layers"]
+    if "layer_types" in config_dict and len(config_dict["layer_types"]) != n:
+        config_dict["layer_types"] = config_dict["layer_types"][:n]
+
     # Create a new Gemma2Config from the updated dict
     smaller_config = Gemma2Config(**config_dict)
 
