@@ -41,5 +41,8 @@ srun \
             --notebook-dir=${REPO_DIR} \
             --NotebookApp.token='' \
             --NotebookApp.password='' \
+            --ServerApp.token='' \
+            --ServerApp.password='' \
+            --IdentityProvider.token='' \
             --allow-root
     "

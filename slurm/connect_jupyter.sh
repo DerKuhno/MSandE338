@@ -7,7 +7,7 @@
 # ============================================================
 set -euo pipefail
 
-LOCAL_PORT=8889   # port exposed on THIS machine
+LOCAL_PORT=8888   # port exposed on THIS machine
 REMOTE_PORT=8888  # port Jupyter binds inside the container
 
 JOB_ID="${1:-}"
@@ -53,17 +53,33 @@ fi
 # Tunnel through the login node's SSH daemon (not directly to compute node)
 echo "Setting up SSH tunnel: localhost:${LOCAL_PORT} -> ${NODE}:${REMOTE_PORT}"
 ssh -4 -fNL "${LOCAL_PORT}:${NODE}:${REMOTE_PORT}" localhost
-sleep 2
+
+# Wait for Jupyter to write its token URL to the log (up to 60s)
+echo "Waiting for Jupyter token URL in log..."
+TOKEN=""
+for i in $(seq 1 30); do
+    TOKEN=$(grep -oP '(?<=token=)[a-f0-9]+' "$LOG" 2>/dev/null | tail -1 || true)
+    if [[ -n "$TOKEN" ]]; then break; fi
+    sleep 2
+done
 
 echo ""
 echo "====================================================="
 echo "  Jupyter is ready!"
-echo "  URL: http://localhost:${LOCAL_PORT}"
-echo ""
-echo "  In VS Code:"
-echo "  Ctrl+Shift+P -> 'Jupyter: Specify Jupyter Server URL'"
-echo "  Enter: http://localhost:${LOCAL_PORT}"
+if [[ -n "$TOKEN" ]]; then
+    echo "  URL (with token): http://localhost:${LOCAL_PORT}/?token=${TOKEN}"
+    echo ""
+    echo "  In VS Code:"
+    echo "  Ctrl+Shift+P -> 'Jupyter: Specify Jupyter Server URL'"
+    echo "  Enter: http://localhost:${LOCAL_PORT}/?token=${TOKEN}"
+else
+    echo "  URL: http://localhost:${LOCAL_PORT}"
+    echo ""
+    echo "  In VS Code:"
+    echo "  Ctrl+Shift+P -> 'Jupyter: Specify Jupyter Server URL'"
+    echo "  Enter: http://localhost:${LOCAL_PORT}"
+fi
 echo ""
 echo "  To reach from your LOCAL machine:"
-echo "  ssh -N -L ${LOCAL_PORT}:localhost:${LOCAL_PORT} ${USER}@<login-node>"
+echo "  ssh -N -L ${LOCAL_PORT}:localhost:${LOCAL_PORT} ${USER}@$(hostname -f)"
 echo "====================================================="

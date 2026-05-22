@@ -177,3 +177,15 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Tokens / secrets
+tokens/
+
+# Trained model checkpoints
+pythia-160m-*/
+
+# Slurm logs
+slurm/logs/
+
+# Generated plots
+*.png
