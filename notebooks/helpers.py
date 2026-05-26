@@ -37,13 +37,15 @@ def calculate_perplexity(model, tokenizer, texts, device):
 
 # 5. Plotting Function for the Relearning Attack
 # Use this function after tracking your loss during the relearning phase
-def plot_relearning_curves(steps, vanilla_ppl, standard_unlearn_ppl, undo_ppl):
+def plot_relearning_curves(steps, vanilla_ppl, standard_unlearn_ppl, undo_ppl, cont_undo_ppl=None):
     plt.figure(figsize=(8, 5))
-    
+
     # Plot curves
     plt.plot(steps, vanilla_ppl, label="Vanilla Pythia (Control Group)", color="gray", linestyle="--")
     plt.plot(steps, standard_unlearn_ppl, label="Standard Unlearning (Weak/Traces Left)", color="red")
-    plt.plot(steps, undo_ppl, label="UNDO Framework (Strong/Traces Erased)", color="green", linewidth=2)
+    plt.plot(steps, undo_ppl, label="UNDO (one-shot noise)", color="green", linewidth=2)
+    if cont_undo_ppl is not None:
+        plt.plot(steps, cont_undo_ppl, label="UNDO (continuous noise)", color="blue", linewidth=2)
     
     # Formatting
     plt.xlabel("Relearning Gradient Steps")
