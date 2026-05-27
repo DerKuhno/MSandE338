@@ -54,12 +54,21 @@ fi
 echo "Setting up SSH tunnel: localhost:${LOCAL_PORT} -> ${NODE}:${REMOTE_PORT}"
 ssh -4 -fNL "${LOCAL_PORT}:${NODE}:${REMOTE_PORT}" localhost
 
-# Wait for Jupyter to write its token URL to the log (up to 60s)
+# Wait for Jupyter to write its token URL to the log (up to 60s).
+# If started with no token the "is running at:" line appears without a token=
+# parameter — detect that case and break early rather than waiting the full timeout.
 echo "Waiting for Jupyter token URL in log..."
 TOKEN=""
 for i in $(seq 1 30); do
-    TOKEN=$(grep -oP '(?<=token=)[a-f0-9]+' "$LOG" 2>/dev/null | tail -1 || true)
+    # Try the explicit "Token: <hex>" line we echo before launching jupyter
+    TOKEN=$(grep -m1 "^Token:" "$LOG" 2>/dev/null | awk '{print $2}' || true)
+    if [[ -z "$TOKEN" ]]; then
+        # Fall back to token= in the Jupyter URL line
+        TOKEN=$(grep -oP '(?<=token=)[a-f0-9]+' "$LOG" 2>/dev/null | tail -1 || true)
+    fi
     if [[ -n "$TOKEN" ]]; then break; fi
+    # Server is up but has no token — no point waiting further
+    if grep -q "is running at:" "$LOG" 2>/dev/null; then break; fi
     sleep 2
 done
 
