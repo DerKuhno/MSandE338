@@ -34,15 +34,15 @@ srun \
     --export=ALL,WORKSPACE_DIR="$WORKSPACE_DIR",CACHE_DIR="$CACHE_DIR",DATASET_DIR="$DATASET_DIR",MODEL_DIR="$MODEL_DIR",WMDP_MODEL_DIR="$WMDP_MODEL_DIR",PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" \
     bash -c "
         export PYTHONPATH=\"$(ls -d $PIP_ENV/local/lib/python*/dist-packages 2>/dev/null | head -1):\${PYTHONPATH:-}\"
+        JUPYTER_TOKEN=\$(python3 -c 'import secrets; print(secrets.token_hex(24))')
+        echo \"Token: \${JUPYTER_TOKEN}\"
         jupyter lab \
             --no-browser \
             --port=${PORT} \
             --ip=0.0.0.0 \
             --notebook-dir=${REPO_DIR} \
-            --NotebookApp.token='' \
-            --NotebookApp.password='' \
-            --ServerApp.token='' \
-            --ServerApp.password='' \
-            --IdentityProvider.token='' \
+            --ServerApp.allow_origin='*' \
+            --ServerApp.disable_check_xsrf=True \
+            --IdentityProvider.token=\"\${JUPYTER_TOKEN}\" \
             --allow-root
     "
