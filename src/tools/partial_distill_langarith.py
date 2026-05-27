@@ -62,7 +62,10 @@ def partial_distill(
     overwrite_ok,
     noise_alpha=0.0,
     noise_beta=0.0,
-    shrink_perturb_repeat=False,  
+    shrink_perturb_repeat=False,
+    noise_every_n_steps=0,
+    continuous_noise_alpha=0.0,
+    continuous_noise_beta=0.1,
 ):
     """
     Distillation script using Accelerate. Replaces standard CE with forward KL (KL(teacher||student)).
@@ -290,6 +293,13 @@ def partial_distill(
                 optimizer.zero_grad()
                 global_step += 1
 
+                if noise_every_n_steps > 0 and continuous_noise_alpha > 0.0 and global_step % noise_every_n_steps == 0:
+                    do_continuous_corruption(
+                        accelerator.unwrap_model(student_model),
+                        continuous_noise_alpha,
+                        continuous_noise_beta,
+                    )
+
                 avg_kd_loss = micro_kd_sum / float(gradient_accumulation_steps)
                 micro_kd_sum = 0.0
 
@@ -403,3 +413,17 @@ def do_corruption(model, noise_alpha, noise_beta = 0.1, seed = 42):
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model.to(device)
+
+
+def do_continuous_corruption(model, noise_alpha, noise_beta=0.1):
+    """Per-step variant of do_corruption: no .to(device) call, beta unbounded."""
+    assert 0 <= noise_alpha <= 1
+    for param in model.parameters():
+        if param.requires_grad:
+            if len(param.data.shape) == 2:
+                noise = torch.nn.init.xavier_uniform_(torch.empty_like(param.data))
+            elif len(param.data.shape) == 1:
+                noise = torch.zeros_like(param.data)
+            else:
+                raise RuntimeError(f"Unsupported parameter shape: {param.data.shape}")
+            param.data = (1 - noise_alpha) * param.data + noise_alpha * noise_beta * noise
