@@ -13,6 +13,7 @@ Compare across conditions:
 
 import modal
 import json
+from pathlib import Path
 
 app = modal.App("crime-sim-probes")
 
@@ -808,6 +809,7 @@ def main(
 ):
     result   = run_probes.remote(condition=condition, model_name=model_name, model_path=model_path, seed=seed)
     out_path = f"results/probes/probes_{condition}_seed{seed}.json"
+    Path(out_path).parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w") as f:
         json.dump(result, f, indent=2)
     print(f"\nSaved → {out_path}")

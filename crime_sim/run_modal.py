@@ -50,6 +50,7 @@ for crime to emerge through reasoning alone. Fall back to the injection pipeline
 
 import modal
 import json
+from pathlib import Path
 
 app = modal.App("crime-sim-unlearning")
 
@@ -377,7 +378,8 @@ def main(
         condition=condition, model_name=model_name, model_path=model_path,
         baseline_name=baseline_name, n_rounds=n_rounds, seed=seed,
     )
-    out_path = f"results/simulations/crime_sim_results_{condition}_seed{seed}.json"
+    out_path = Path(__file__).parent / f"results/simulations/crime_sim_results_{condition}_seed{seed}.json"
+    Path(out_path).parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w") as f:
         json.dump(result, f, indent=2)
     print(f"Saved → {out_path}")
