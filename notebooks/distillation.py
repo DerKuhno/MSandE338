@@ -18,7 +18,7 @@ class DistillationDataset(Dataset):
 
 def do_one_shot_corruption(model, noise_alpha, noise_beta=0.1):
     """One-shot noise applied once before distillation starts (original UNDO method).
-    Same formula as do_continuous_corruption but intended for a single pre-training call.
+    Same formula as do_continuous_corruption but intended for a single call pre-distillation.
     """
     assert 0 <= noise_alpha <= 1
     for param in model.parameters():

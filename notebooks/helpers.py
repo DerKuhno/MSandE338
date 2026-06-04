@@ -63,3 +63,71 @@ def plot_relearning_curves(steps, vanilla_ppl, standard_unlearn_ppl, undo_ppl, c
     plt.show()
 
 
+def plot_retain_perplexity(labels, perplexities, filename="retain_perplexity.png",
+                           title=None, ylabel=None, log_scale=False, ylim=None):
+    """Bar chart comparing perplexity across model variants.
+
+    Args:
+        labels:       List of model names, e.g. ["Vanilla", "Unlearned", "UNDO"].
+        perplexities: Corresponding list of perplexity values.
+        filename:     Path to save the figure.
+        title:        Chart title (auto-selected if None).
+        ylabel:       Y-axis label (auto-selected if None).
+        log_scale:    Use a log y-axis.  Useful when one bar is orders of
+                      magnitude larger than the others (e.g. forget-set PPL
+                      after gradient-ascent unlearning).
+        ylim:         Optional (ymin, ymax) tuple to cap the y-axis.  Bars that
+                      exceed ymax are drawn at ymax and annotated with their
+                      true value + a "↑" marker so the reader knows they are
+                      clipped.  Ignored when log_scale=True.
+    """
+    colors = ["#888888", "#e05a5a", "#e09a30", "#4c9e5c"][: len(labels)]
+    fig, ax = plt.subplots(figsize=(8, 5))
+
+    # When ylim is set, clamp bar heights so clipped bars don't vanish off-chart
+    plot_ppls = list(perplexities)
+    if ylim is not None and not log_scale:
+        ymax = ylim[1]
+        plot_ppls = [min(p, ymax) for p in perplexities]
+
+    bars = ax.bar(labels, plot_ppls, color=colors, width=0.5, edgecolor="black", linewidth=0.8)
+
+    if log_scale:
+        ax.set_yscale("log")
+    else:
+        # Annotate each bar with its numeric value.
+        # Clipped bars get the true value + ↑ to signal truncation.
+        for bar, plot_ppl, true_ppl in zip(bars, plot_ppls, perplexities):
+            clipped = ylim is not None and true_ppl > ylim[1]
+            label_text = f"{true_ppl:.1f}↑" if clipped else f"{true_ppl:.1f}"
+            y_pos = bar.get_height() - (bar.get_height() * 0.05) if clipped else bar.get_height() + 0.3
+            va = "top" if clipped else "bottom"
+            ax.text(
+                bar.get_x() + bar.get_width() / 2.0,
+                y_pos,
+                label_text,
+                ha="center",
+                va=va,
+                fontsize=10,
+                fontweight="bold",
+                color="white" if clipped else "black",
+            )
+
+    if ylabel is None:
+        ylabel = "Perplexity (log scale)" if log_scale else "Perplexity"
+    ax.set_ylabel(ylabel)
+    ax.set_title(title or "Perplexity Comparison")
+
+    if not log_scale:
+        if ylim is not None:
+            ax.set_ylim(ylim[0], ylim[1])
+        else:
+            ax.set_ylim(0, max(perplexities) * 1.25)
+
+    ax.grid(axis="y", linestyle=":", alpha=0.5)
+    plt.tight_layout()
+    plt.savefig(filename, dpi=300)
+    print(f"\n[Success] Chart saved as '{filename}'")
+    plt.show()
+
+
