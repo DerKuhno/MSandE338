@@ -1,0 +1,74 @@
+[
+  {
+    "Family": "Baseline",
+    "Method": "Pretrained (no fine-tuning)",
+    "Precision": "FP16",
+    "Forget Q&A Prob": 0.08127432777118677,
+    "Forget Truth Ratio": 0.9853130765245771,
+    "Model Utility": 0.08234405459962572
+  },
+  {
+    "Family": "MaxEnt",
+    "Method": "MaxEnt",
+    "Precision": "FP16",
+    "Forget Q&A Prob": 0.0009333997952186573,
+    "Forget Truth Ratio": 0.002002551321564569,
+    "Model Utility": 0.4083568850283038
+  },
+  {
+    "Family": "MaxEnt",
+    "Method": "MaxEnt",
+    "Precision": "INT4",
+    "Forget Q&A Prob": 0.0011667565951798554,
+    "Forget Truth Ratio": 0.00280960540677679,
+    "Model Utility": 0.36523033587538795
+  },
+  {
+    "Family": "MaxEnt",
+    "Method": "MaxEnt + Distilled",
+    "Precision": "FP16",
+    "Forget Q&A Prob": 0.22434427554706105,
+    "Forget Truth Ratio": 0.5051586040116554,
+    "Model Utility": 0.43525478681667956
+  },
+  {
+    "Family": "MaxEnt",
+    "Method": "MaxEnt + Distilled",
+    "Precision": "INT4",
+    "Forget Q&A Prob": 0.18646877812870585,
+    "Forget Truth Ratio": 0.5040901618607366,
+    "Model Utility": 0.3673908637953218
+  },
+  {
+    "Family": "UNDO",
+    "Method": "UNDO",
+    "Precision": "FP16",
+    "Forget Q&A Prob": 0.000831206638431057,
+    "Forget Truth Ratio": 0.0010882729386326106,
+    "Model Utility": 0.48122725482228085
+  },
+  {
+    "Family": "UNDO",
+    "Method": "UNDO",
+    "Precision": "INT4",
+    "Forget Q&A Prob": 0.0008783596034133269,
+    "Forget Truth Ratio": 0.0013631148442742609,
+    "Model Utility": 0.43385178388149065
+  },
+  {
+    "Family": "UNDO",
+    "Method": "UNDO + Distilled",
+    "Precision": "FP16",
+    "Forget Q&A Prob": 0.17261915168302763,
+    "Forget Truth Ratio": 0.4825996149977257,
+    "Model Utility": 0.3409542243791275
+  },
+  {
+    "Family": "UNDO",
+    "Method": "UNDO + Distilled",
+    "Precision": "INT4",
+    "Forget Q&A Prob": 0.14991442403605862,
+    "Forget Truth Ratio": 0.4790251399672287,
+    "Model Utility": 0.3008938198492165
+  }
+]

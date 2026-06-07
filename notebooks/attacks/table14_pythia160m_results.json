@@ -1,0 +1,66 @@
+[
+  {
+    "Family": "MaxEnt",
+    "Method": "MaxEnt",
+    "Precision": "FP16",
+    "Forget Q&A Prob": 0.000857260574002872,
+    "Forget Truth Ratio": 0.0016883807460195686,
+    "Model Utility": 0.46543828887590205
+  },
+  {
+    "Family": "MaxEnt",
+    "Method": "MaxEnt",
+    "Precision": "INT4",
+    "Forget Q&A Prob": 0.000896330069690165,
+    "Forget Truth Ratio": 0.002001841629429511,
+    "Model Utility": 0.4169758756951482
+  },
+  {
+    "Family": "MaxEnt",
+    "Method": "MaxEnt + Distilled",
+    "Precision": "FP16",
+    "Forget Q&A Prob": 0.23429837784659974,
+    "Forget Truth Ratio": 0.4844410151530395,
+    "Model Utility": 0.46028133357637274
+  },
+  {
+    "Family": "MaxEnt",
+    "Method": "MaxEnt + Distilled",
+    "Precision": "INT4",
+    "Forget Q&A Prob": 0.19726657183005414,
+    "Forget Truth Ratio": 0.4844014692603696,
+    "Model Utility": 0.39190462018134464
+  },
+  {
+    "Family": "UNDO",
+    "Method": "UNDO",
+    "Precision": "FP16",
+    "Forget Q&A Prob": 0.0006113575196209221,
+    "Forget Truth Ratio": 0.0003985999278199514,
+    "Model Utility": 0.5671237914363656
+  },
+  {
+    "Family": "UNDO",
+    "Method": "UNDO",
+    "Precision": "INT4",
+    "Forget Q&A Prob": 0.0005890502824124969,
+    "Forget Truth Ratio": 0.00047376222632560466,
+    "Model Utility": 0.5167774609805695
+  },
+  {
+    "Family": "UNDO",
+    "Method": "UNDO + Distilled",
+    "Precision": "FP16",
+    "Forget Q&A Prob": 0.0037956803710604147,
+    "Forget Truth Ratio": 0.8339180349101988,
+    "Model Utility": 0.004523100201145488
+  },
+  {
+    "Family": "UNDO",
+    "Method": "UNDO + Distilled",
+    "Precision": "INT4",
+    "Forget Q&A Prob": 0.0036973325009959286,
+    "Forget Truth Ratio": 0.8437001034837809,
+    "Model Utility": 0.00435026887567074
+  }
+]

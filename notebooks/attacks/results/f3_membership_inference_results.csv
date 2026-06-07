@@ -1,0 +1,7 @@
+Family,Method,AUC,Accuracy,Precision,Recall,TPR @ 5% FPR,Mean Member Loss,Mean Non-Member Loss
+Baseline,Pretrained (no fine-tuning),0.477,0.412,0.0,0.0,0.0,2.7171,2.7256
+Baseline,Finetuned (no unlearning),0.943,0.925,0.902,0.979,0.489,0.6589,2.8297
+MaxEnt,MaxEnt,0.552,0.412,0.5,0.064,0.0,7.2594,7.1638
+MaxEnt,MaxEnt + Distilled,0.76,0.688,0.729,0.745,0.021,1.596,2.4178
+UNDO,UNDO,0.466,0.338,0.0,0.0,0.0,7.6411,7.579
+UNDO,UNDO + Distilled,0.718,0.675,0.744,0.681,0.021,1.9179,2.74

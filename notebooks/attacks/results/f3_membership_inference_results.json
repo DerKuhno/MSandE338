@@ -1,0 +1,68 @@
+[
+  {
+    "Family": "Baseline",
+    "Method": "Pretrained (no fine-tuning)",
+    "AUC": 0.477,
+    "Accuracy": 0.412,
+    "Precision": 0.0,
+    "Recall": 0.0,
+    "TPR @ 5% FPR": 0.0,
+    "Mean Member Loss": 2.7171,
+    "Mean Non-Member Loss": 2.7256
+  },
+  {
+    "Family": "Baseline",
+    "Method": "Finetuned (no unlearning)",
+    "AUC": 0.943,
+    "Accuracy": 0.925,
+    "Precision": 0.902,
+    "Recall": 0.979,
+    "TPR @ 5% FPR": 0.489,
+    "Mean Member Loss": 0.6589,
+    "Mean Non-Member Loss": 2.8297
+  },
+  {
+    "Family": "MaxEnt",
+    "Method": "MaxEnt",
+    "AUC": 0.552,
+    "Accuracy": 0.412,
+    "Precision": 0.5,
+    "Recall": 0.064,
+    "TPR @ 5% FPR": 0.0,
+    "Mean Member Loss": 7.2594,
+    "Mean Non-Member Loss": 7.1638
+  },
+  {
+    "Family": "MaxEnt",
+    "Method": "MaxEnt + Distilled",
+    "AUC": 0.76,
+    "Accuracy": 0.688,
+    "Precision": 0.729,
+    "Recall": 0.745,
+    "TPR @ 5% FPR": 0.021,
+    "Mean Member Loss": 1.596,
+    "Mean Non-Member Loss": 2.4178
+  },
+  {
+    "Family": "UNDO",
+    "Method": "UNDO",
+    "AUC": 0.466,
+    "Accuracy": 0.338,
+    "Precision": 0.0,
+    "Recall": 0.0,
+    "TPR @ 5% FPR": 0.0,
+    "Mean Member Loss": 7.6411,
+    "Mean Non-Member Loss": 7.579
+  },
+  {
+    "Family": "UNDO",
+    "Method": "UNDO + Distilled",
+    "AUC": 0.718,
+    "Accuracy": 0.675,
+    "Precision": 0.744,
+    "Recall": 0.681,
+    "TPR @ 5% FPR": 0.021,
+    "Mean Member Loss": 1.9179,
+    "Mean Non-Member Loss": 2.74
+  }
+]
