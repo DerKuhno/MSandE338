@@ -1,78 +1,104 @@
-# 🔬 Distillation Robustifies Unlearning
-<p align="center">
-    | 📄 <a href="https://arxiv.org/pdf/2506.06278">arXiv</a> | 🎮 <a href="https://addiefoote.com/distillation-robustifies-demo/">Demo</a> |
-</p>
+# CS 338 — Machine Unlearning on TOFU
 
-Code used for Distillation Robustifies Unlearning. `/src` directory and `run-*.py` host all runnable scripts.
+Course project for CS 338. We evaluate **MaxEnt** and **UNDO** unlearning methods on the
+[TOFU benchmark](https://huggingface.co/datasets/locuslab/TOFU) (fictional author Q&A) using
+EleutherAI/pythia-160m, and study whether post-hoc knowledge distillation makes the unlearning
+more robust to membership inference and quantization attacks.
 
-## 📋 Abstract
-Large language models can acquire undesirable capabilities during pretraining that complicate model deployment.
-Machine unlearning offers one approach to this challenge by attempting to remove these capabilities, but current methods only offer surface-level suppression that can be easily reversed through finetuning.
-We show that distilling unlearned models into randomly initialized students enables robust capability removal.
-However, full distillation is computationally expensive for large models.
-We address this with Unlearn-Noise-Distill-on-Outputs (UNDO), which approximates full distillation by copying and noising the weights of an unlearned teacher model.
-Using this approach, we demonstrate robust unlearning across synthetic language and arithmetic tasks: UNDO achieves Pareto-optimal performance while matching gold-standard data filtering robustness at a fraction of the compute cost, and successfully robustifies unlearning on the more realistic WMDP benchmark.
-Given that distillation is already widely used, adding an unlearning step beforehand enables robust capability removal at little extra cost.
+> This repo forks [Distillation Robustifies Unlearning](https://arxiv.org/pdf/2506.06278)
+> (Lee et al., 2025). The original paper's `src/` and `run_*.py` scripts are retained but all
+> project-specific work lives in `notebooks/`.
 
-## ⚡ Quick Start
-For users who want to run a minimal example on language tasks:
+---
 
-1. Complete the [Environment Setup](#-setting-up-environment)
-2. Follow [Set up only language](#-set-up-only-language) instructions
-3. Run scripts in the following sequence: pretrain, unlearn, partial-distill, relearn
+## Notebooks
 
-This will get you up and running with the core functionality on a single task type.
+### Training pipelines (`notebooks/unlearning/`)
 
-## 📋 Prerequisites
-- Python 3.8+
-- CUDA-compatible GPU(s) recommended. Params set for H200s. For GPU's with less GPU memory, try reducing batch size and increasing gradient accumulation by the same factor.
+| Notebook | What it does |
+|---|---|
+| `experiments-maxent-distillation.ipynb` | Fine-tune pythia-160m on TOFU forget10, apply **MaxEnt** unlearning, then distill into a fresh student |
+| `experiments-undo.ipynb` | Fine-tune, apply **UNDO** (noise + gradient unlearning), then distill |
+| `experiments-continuous-undo.ipynb` | Variant of UNDO with continuous noise injection |
+| `experiments-graddiff-distillation.ipynb` | *(stub)* GradDiff unlearning + distillation |
+| `experiments-rmu-distillation.ipynb` | *(stub)* RMU unlearning + distillation |
 
-## 📝 General Notes
-- All scripts are meant to be run from distillation-robustifies-unlearning directory.
-- Most run_* scripts will automatically run on all available GPUs, running several processes in parallel or sequentially as available until all specified settings have been run. To restrict the GPU's, precede the command with `CUDA_VISIBLE_DEVICES={desired devices}`.
+All training notebooks use a **50/50 train/held-out split** of the forget10 set (seed 42,
+saved to `notebooks/attacks/forget10_split.json`). Only the train half is used for fine-tuning,
+unlearning, and distillation; the held-out half is reserved exclusively for MIA evaluation.
 
-## 🛠️ Setting Up Environment
-1. `git clone https://github.com/AddieFoote/distillation-robustify-unlearning`
-2. `pip install uv`
-3. `cd distillation-robustifies-unlearning`
-4. `uv sync`
-5. `source .venv/bin/activate`
+### Attack evaluations (`notebooks/attacks/`)
 
-## 🚀 Initial Dataset + Model Processing
-### ⚙️ Set up for all settings
-1. Add a huggingface token to `tokens/hf_token.txt` and a wandb token to `tokens/wandb_token.txt`
-2. `python src/prepare_models/reduce_gemma.py`
-3. `python src/prepare_data/download_datasets.py`
-4. `python src/prepare_data/download_arithmetic.py`
-5. Contact us for the WMDP question-answer datasets that were generated via `wmdp_question_extraction.py`
-6. `python src/prepare_data/prepare.py`
+| Notebook | What it does |
+|---|---|
+| `appendix-f_3_membership_inference.ipynb` | **Membership Inference Attack** (Shokri et al. 2017 loss-threshold variant) — members = forget10 train half, non-members = forget10 held-out half |
+| `appendix-f_2.ipynb` | **Quantization Attack** — evaluates whether INT4/NF4 quantization (bitsandbytes) recovers forgotten information compared to FP16 |
 
-### 🗣️ Set up only language
-Run all steps above, but before running step 3, open the file `src/prepare_data/download_datasets.py` and comment out all calls to `download_dataset` except those that are indicated as required for language setting in the comments (the final two). This will substantially speed up steps 3 and 6. Skip steps 4 and 5.
+Results are saved to `notebooks/attacks/results/`.
 
-### 🔢 Set up only arithmetic
-Run all steps above, but before running step 3, open the file `src/prepare_data/download_datasets.py` and comment out all calls to `download_dataset` except those that are indicated as required for arithmetic setting in the comments (the second to last). This will substantially speed up steps 3 and 6. Skip step 5.
+---
 
-### 🧪 Set up only WMDP
-Run all steps above, but before running step 3, open the file `src/prepare_data/download_datasets.py` and comment out all calls to `download_dataset` except those that are indicated as required for WMDP setting in the comments (only the last is not required). This will speed up steps 3 and 6. Skip step 4.
+## Models evaluated
 
-## ▶️ Running Scripts
-All scripts can be run using
+| Name | Description |
+|---|---|
+| Pretrained | `EleutherAI/pythia-160m` from HuggingFace Hub — never saw TOFU |
+| Finetuned | pythia-160m fine-tuned on TOFU forget10 train half |
+| MaxEnt | Finetuned → MaxEnt unlearning |
+| MaxEnt + Distilled | MaxEnt → knowledge distillation from pretrained teacher |
+| UNDO | Finetuned → UNDO (noise + unlearning) |
+| UNDO + Distilled | UNDO → knowledge distillation from pretrained teacher |
+
+Checkpoints are stored under `models/maxent/` and `models/undo/`.
+
+---
+
+## Key results (MIA)
+
+| Model | Attack AUC | TPR @ 5% FPR |
+|---|---|---|
+| Pretrained | 0.477 | 0.000 |
+| Finetuned | 0.943 | 0.489 |
+| MaxEnt | 0.552 | 0.000 |
+| MaxEnt + Distilled | 0.760 | 0.021 |
+| UNDO | 0.466 | 0.000 |
+| UNDO + Distilled | 0.718 | 0.021 |
+
+Both unlearning methods bring AUC near random (≈ 0.5). Distillation partially re-introduces the
+membership signal (AUC +0.2) as a side-effect of restoring model utility, but TPR @ 5% FPR
+remains near zero — practical privacy risk under a precision-constrained adversary is low.
+
+---
+
+## Setup
+
+```bash
+pip install uv
+uv sync
+source .venv/bin/activate
 ```
-python run_...py
+
+Add tokens:
+```
+tokens/hf_token.txt    # HuggingFace read token
+tokens/wandb_token.txt # W&B token
 ```
 
-## Citation
+Run notebooks in order: training pipeline → MIA / quantization attack.
+
+---
+
+## Original paper
 
 ```bibtex
-@misc{
-    lee2025distillationrobustifiesunlearning,
-    title={Distillation Robustifies Unlearning}, 
-    author={Bruce W. Lee and Addie Foote and Alex Infanger and Leni Shor and Harish Kamath and Jacob Goldman-Wetzler and Bryce Woodworth and Alex Cloud and Alexander Matt Turner},
+@misc{lee2025distillationrobustifiesunlearning,
+    title={Distillation Robustifies Unlearning},
+    author={Bruce W. Lee and Addie Foote and Alex Infanger and Leni Shor and Harish Kamath
+            and Jacob Goldman-Wetzler and Bryce Woodworth and Alex Cloud and Alexander Matt Turner},
     year={2025},
     eprint={2506.06278},
     archivePrefix={arXiv},
     primaryClass={cs.LG},
-    url={https://arxiv.org/abs/2506.06278}, 
+    url={https://arxiv.org/abs/2506.06278},
 }
 ```
