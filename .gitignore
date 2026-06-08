@@ -181,8 +181,8 @@ cython_debug/
 # Trained model checkpoints
 pythia-160m-*/
 
-# Slurm logs
-slurm/logs/
+# Slurm scripts and logs (kept locally, not pushed)
+slurm/
 
 # Generated plots
 *.png
