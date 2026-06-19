@@ -73,7 +73,8 @@ remains near zero — practical privacy risk under a precision-constrained adver
 ## Extension: Multi-Agent Crime Simulation
 
 > **Note:** This extension uses a different model and dataset from the TOFU experiments above.
-> Domain: crime simulation scenarios
+> Domain: crime simulation scenarios, inspired by [Emergence World](https://github.com/EmergenceAI/Emergence-World) (Emergence AI, 2026).
+
 
 ### Models evaluated
 
