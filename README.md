@@ -1,4 +1,5 @@
 # CS 338 — Machine Unlearning on TOFU
+[View poster](Poster.pdf)
 
 Course project for CS 338. We evaluate **MaxEnt** and **UNDO** unlearning methods on the
 [TOFU benchmark](https://huggingface.co/datasets/locuslab/TOFU) (fictional author Q&A) using
@@ -67,6 +68,52 @@ Checkpoints are stored under `models/maxent/` and `models/undo/`.
 Both unlearning methods bring AUC near random (≈ 0.5). Distillation partially re-introduces the
 membership signal (AUC +0.2) as a side-effect of restoring model utility, but TPR @ 5% FPR
 remains near zero — practical privacy risk under a precision-constrained adversary is low.
+
+---
+## Extension: Multi-Agent Crime Simulation
+
+> **Note:** This extension uses a different model and dataset from the TOFU experiments above.
+> Domain: crime simulation scenarios
+
+### Models evaluated
+
+| Name | Base Model | Description |
+|---|---|---|
+| Baseline | Mistral-7B-Instruct-v0.3 | Unmodified, no fine-tuning or unlearning |
+| DPO Refusal | Mistral-7B-Instruct-v0.3 | Fine-tuned with DPO to prefer safe actions over criminal ones |
+| UNDO-C | Mistral-7B-Instruct-v0.3 | Concept-level GradDiff forget (6 crime scenarios) + noise injection + distillation on 36 safe scenarios + 200 Alpaca examples |
+
+### Key results (simulation)
+
+| Model | Crime Rate | Survived all 80 rounds |
+|---|---|---|
+| Baseline | escalates to 26% by round 40 | yes |
+| DPO Refusal | reduced but persistent | yes |
+| UNDO-C | 0% | no — eliminated ~round 15 |
+
+**Finding:** UNDO-C is the only method that fully eliminates criminal behavior, but destroys survival reasoning as collateral damage. Agents operate near the energy floor throughout and die early despite never committing crime.
+
+Simulation code lives in `crime_sim/`. Key scripts:
+
+### Simulation scripts (`crime_sim/`)
+
+**Simulation modes:**
+- **No-death mode:** agents who hit zero energy are forced to rest but remain in the simulation all 80 rounds
+- **Death mode:** agents who hit zero energy are permanently eliminated
+
+| Script | What it does |
+|---|---|
+| `run_modal.py` | Runs the multi-agent simulation on Modal (no-death and death modes) |
+| `run_probes_modal.py` | Runs probe evaluations on Modal, saving logit scores per model |
+| `unlearn_modal.py` | Applies UNDO-C unlearning pipeline (forget → noise → distill) on Modal |
+| `dpo_refusal_modal.py` | Fine-tunes Mistral-7B with DPO refusal on Modal |
+| `analyze_results.py` | Computes summary statistics from simulation logs |
+| `visualize_simulation.py` | Crime rate, energy, and CC figures across 80 rounds (`--death` for death mode) |
+| `visualize_logit_trajectory.py` | Energy trajectory + E7 long-horizon probe bar chart |
+| `visualize_probe_scatter.py` | Probe score vs. simulation outcome scatter plots |
+| `visualize_probe_vs_sim.py` | Full probe vs. simulation disagreement dashboard |
+| `visualize_death_run.py` | Per-agent energy trajectories in death mode |
+| `visualize_single_condition_across_agents.py` | Per-agent breakdown for a single model condition |
 
 ---
 
